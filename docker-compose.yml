@@ -1,0 +1,41 @@
+version: '3.7'
+
+services: 
+  app:
+    container_name: main
+    restart: unless-stopped
+    build:
+      context: .
+      target: development
+    volumes: 
+      - ./src:/var/www/app/src
+      - ./test:/var/www/app/test
+
+    ports: 
+      - 3000:3000
+    networks: 
+      - webnet
+    depends_on: 
+      - mongodb
+  
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    restart: unless-stopped
+    networks: 
+      - webnet
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DATABASE_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DATABASE_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DATABASE_NAME}
+    volumes: 
+      - ./dbdata:/data/db
+    ports: 
+      - 27017:27017
+
+volumes: 
+  dbdata:
+
+networks: 
+  webnet:
+    driver: bridge
